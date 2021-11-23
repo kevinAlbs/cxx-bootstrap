@@ -69,7 +69,7 @@ int main () {
     auto db = client.database("db");
     auto doc = make_document(kvp("ping", 1));
     auto res = db.run_command (doc.view());
-    std::cout << "ping replied with " << bsoncxx::to_json (res.view());
+    std::cout << "ping replied with " << bsoncxx::to_json (res.view()) << std::endl;
 }
 EOF
 
