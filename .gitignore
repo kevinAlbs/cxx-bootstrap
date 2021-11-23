@@ -1,1 +1,4 @@
-cmake-build
+.DS_STORE
+*.out
+install/*
+tmp/*
