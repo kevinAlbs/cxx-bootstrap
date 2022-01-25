@@ -8,8 +8,13 @@ fi
 
 MONGOCRYPT_PATH=${MONGOCRYPT_PATH:-$(pwd)/install/libmongocrypt-master}
 GITREF=${GITREF:-master}
-PREFIX=${PREFIX:-$(pwd)/install/mongo-c-driver-$GITREF}
-TMPDIR=$(pwd)/tmp
+PREFIX=${PREFIX:-$(pwd)/install/mongo-c-driver-$GITREF$SUFFIX}
+SRCDIR=$PREFIX-src
+CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Debug}
+
+if [[ "$CMAKE_BUILD_TYPE" == "Release" ]]; then
+    PREFIX="$PREFIX-release"
+fi
 
 . ./etc/find_os.sh
 . ./etc/find_cmake.sh
@@ -20,10 +25,10 @@ if [[ $OS == "WINDOWS" ]]; then
 fi
 
 mkdir -p $PREFIX
-rm -rf $TMPDIR
-mkdir -p $TMPDIR
+rm -rf $SRCDIR
+mkdir -p $SRCDIR
 
-cd $TMPDIR
+cd $SRCDIR
 git clone git@github.com:mongodb/mongo-c-driver.git
 cd mongo-c-driver
 git checkout $GITREF
@@ -32,7 +37,7 @@ cd cmake-build
 
 echo "About to install C driver ($GITREF) into $PREFIX"
 
-$CMAKE \
+$CMAKE $EXTRA_CMAKE_ARGS \
     -DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF \
     -DENABLE_SHM_COUNTERS=OFF \
     -DENABLE_TESTS=OFF \
@@ -40,9 +45,8 @@ $CMAKE \
     -DENABLE_STATIC=ON \
     -DCMAKE_MACOSX_RPATH=ON \
     -DENABLE_CLIENT_SIDE_ENCRYPTION=ON \
+    -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
     -DCMAKE_INSTALL_PREFIX=$PREFIX \
-    -DCMAKE_PREFIX_PATH=$MONGOCRYPT_PATH \
-    -DCMAKE_C_COMPILER="/Users/kevin.albertson/bin/llvm-11.0.0/bin/clang" \
-    -DCMAKE_C_COMPILER_LAUNCHER="ccache" ..
+    -DCMAKE_PREFIX_PATH=$MONGOCRYPT_PATH ..
 
 $CMAKE --build . --target install

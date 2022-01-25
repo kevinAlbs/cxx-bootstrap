@@ -8,7 +8,12 @@ fi
 
 GITREF=${GITREF:-master}
 PREFIX=${PREFIX:-$(pwd)/install/libbson-$GITREF}
-TMPDIR=$(pwd)/tmp
+SRCDIR=$PREFIX-src
+CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Debug}
+
+if [[ "$CMAKE_BUILD_TYPE" == "Release" ]]; then
+    PREFIX="$PREFIX-release"
+fi
 
 . ./etc/find_os.sh
 . ./etc/find_cmake.sh
@@ -18,10 +23,10 @@ if [[ $OS == "WINDOWS" ]]; then
 fi
 
 mkdir -p $PREFIX
-rm -rf $TMPDIR
-mkdir -p $TMPDIR
+rm -rf $SRCDIR
+mkdir -p $SRCDIR
 
-cd $TMPDIR
+cd $SRCDIR
 git clone git@github.com:mongodb/mongo-c-driver.git
 cd mongo-c-driver
 git checkout $GITREF
@@ -38,8 +43,6 @@ $CMAKE \
     -DENABLE_STATIC=ON \
     -DCMAKE_MACOSX_RPATH=ON \
     -DCMAKE_INSTALL_PREFIX=$PREFIX \
-    -DENABLE_MONGOC=OFF \
-    -DCMAKE_C_COMPILER="/Users/kevin.albertson/bin/llvm-11.0.0/bin/clang" \
-    -DCMAKE_C_COMPILER_LAUNCHER="ccache" ..
+    -DENABLE_MONGOC=OFF ..
 
 $CMAKE --build . --target install
