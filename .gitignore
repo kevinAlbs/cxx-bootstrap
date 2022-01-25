@@ -2,3 +2,4 @@
 *.out
 install/*
 tmp/*
+__pycache__
