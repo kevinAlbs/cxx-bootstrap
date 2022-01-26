@@ -38,3 +38,21 @@ cat certificate.pem private_key_pkcs1.pem > client.pem
 {noformat}
 
 After doing this with the .pem file I downloaded from Atlas, I was able to authenticate with X509 using the C++ driver on Windows.
+
+
+---
+
+CDRIVER ticket
+
+Title: Unable to load PKCS#8 private key with SChannel.
+
+h4. Summary
+Private keys can be in PKCS#1 or PKCS#8 format. See https://stackoverflow.com/a/48960291/774658 for details. Secure Channel on Windows is unable to load PKCS#8 encoded private keys.
+
+h4. How to Reproduce
+Create a PKCS#8 format private key from a testing .pem file.
+
+Start a server and require client certificates.
+
+h4. Additional Background
+See SERVER-35541 for an example of this implementation in the MongoDB Server.
