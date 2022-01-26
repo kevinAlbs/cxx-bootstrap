@@ -3,3 +3,6 @@
 install/*
 tmp/*
 __pycache__
+*.dll
+cmake-build
+.vscode
