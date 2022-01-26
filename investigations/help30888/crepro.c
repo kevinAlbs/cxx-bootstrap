@@ -26,6 +26,7 @@ int main()
       MONGOC_ERROR ("mongoc_collection_count_documents error: %s", error.message);
       return EXIT_FAILURE;
    }
+   printf ("Got back: %" PRId64 "\n", res);
 
    bson_destroy (filter);
    mongoc_collection_destroy (coll);
