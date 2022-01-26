@@ -29,7 +29,11 @@ openssl x509 -subject -in ~/.secrets/help30888/X509-cert-5915913444876671085.pem
 subject= /CN=tsd-atlas-connectivity-test-user
 {noformat}
 
-One workaround is to convert the private key from PKCS#8 format to PKCS#1 as follows:
+I was able to reproduce this issue on Windows against a personal M0 instance with X509 authentication.
+
+This is a bug in the C driver loading PKCS#8 format private keys: CDRIVER-4269.
+
+As workaround in the meantime, the user can convert the private key from PKCS#8 format to PKCS#1 as follows:
 
 {noformat}
 openssl x509 -in X509-cert-5915913444876671085.pem -out certificate.pem
@@ -38,21 +42,3 @@ cat certificate.pem private_key_pkcs1.pem > client.pem
 {noformat}
 
 After doing this with the .pem file I downloaded from Atlas, I was able to authenticate with X509 using the C++ driver on Windows.
-
-
----
-
-CDRIVER ticket
-
-Title: Unable to load PKCS#8 private key with SChannel.
-
-h4. Summary
-Private keys can be in PKCS#1 or PKCS#8 format. See https://stackoverflow.com/a/48960291/774658 for details. Secure Channel on Windows is unable to load PKCS#8 encoded private keys.
-
-h4. How to Reproduce
-Create a PKCS#8 format private key from a testing .pem file.
-
-Start a server and require client certificates.
-
-h4. Additional Background
-See SERVER-35541 for an example of this implementation in the MongoDB Server.
