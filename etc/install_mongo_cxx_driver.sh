@@ -6,39 +6,42 @@ if [[ "$(basename $(pwd))" != "cxx-bootstrap" ]]; then
     exit 1
 fi
 
-MONGOCRYPT_PATH=${MONGOCRYPT_PATH:-$(pwd)/install/libmongocrypt-master}
-MONGOC_PATH=${MONGOC_PATH:-$(pwd)/install/mongo-c-driver-master}
-GITREF=${GITREF:-master}
-PREFIX=${PREFIX:-$(pwd)/install/mongo-cxx-driver-$GITREF}
+MONGO_C_DRIVER_INSTALL_PREFIX=${MONGO_C_DRIVER_INSTALL_PREFIX:-$(pwd)/install/mongo-c-driver-master}
+export MONGO_CXX_DRIVER_EXTRA_CMAKE_OPTIONS=${MONGO_CXX_DRIVER_EXTRA_CMAKE_OPTIONS}
+export MONGO_CXX_DRIVER_SUFFIX=$MONGO_CXX_DRIVER_SUFFIX;
+export MONGO_CXX_DRIVER_GITREF=${MONGO_CXX_DRIVER_GITREF:-master}
+export MONGO_CXX_DRIVER_INSTALL_PREFIX=${MONGO_CXX_DRIVER_INSTALL_PREFIX:-$(pwd)/install/mongo-cxx-driver-$MONGO_CXX_DRIVER_GITREF$MONGO_CXX_DRIVER_SUFFIX}
+export MONGO_CXX_DRIVER_SRCDIR=$MONGO_CXX_DRIVER_INSTALL_PREFIX-src
+export MONGO_CXX_DRIVER_CMAKE_BUILD_TYPE=${MONGO_CXX_DRIVER_CMAKE_BUILD_TYPE:-Debug}
+
 TMPDIR=$(pwd)/tmp
 
 . ./etc/find_os.sh
 . ./etc/find_cmake.sh
 
 if [[ $OS == "WINDOWS" ]]; then
-    MONGOCRYPT_PATH=$(cygpath -w $MONGOCRYPT_PATH)
-    MONGOC_PATH=$(cygpath -w $MONGOC_PATH)
-    PREFIX=$(cygpath -w $PREFIX)
+    MONGO_C_DRIVER_INSTALL_PREFIX=$(cygpath -w $MONGO_C_DRIVER_INSTALL_PREFIX)
+    MONGO_CXX_DRIVER_INSTALL_PREFIX=$(cygpath -w $MONGO_CXX_DRIVER_INSTALL_PREFIX)
 fi
 
-mkdir -p $PREFIX
-rm -rf $TMPDIR
-mkdir -p $TMPDIR
+mkdir -p $MONGO_CXX_DRIVER_INSTALL_PREFIX
+rm -rf $MONGO_CXX_DRIVER_SRCDIR
+mkdir -p $MONGO_CXX_DRIVER_SRCDIR
 
-cd $TMPDIR
+cd $MONGO_CXX_DRIVER_SRCDIR
 git clone git@github.com:mongodb/mongo-cxx-driver.git
 cd mongo-cxx-driver
-git checkout $GITREF
+git checkout $MONGO_CXX_DRIVER_GITREF
 mkdir cmake-build
 cd cmake-build
 
-echo "About to install C++ driver ($GITREF) into $PREFIX"
+echo "About to install C++ driver ($MONGO_CXX_DRIVER_GITREF) into $MONGO_CXX_DRIVER_INSTALL_PREFIX"
 
 $CMAKE \
     -DCMAKE_CXX_COMPILER_LAUNCHER="ccache" \
     -DCMAKE_CXX_STANDARD=17 \
-    -DCMAKE_INSTALL_PREFIX=$PREFIX \
+    -DCMAKE_INSTALL_PREFIX=$MONGO_CXX_DRIVER_INSTALL_PREFIX \
     -DENABLE_TESTS=OFF \
-    -DCMAKE_PREFIX_PATH="$MONGOCRYPT_PATH;$MONGOC_PATH" ..
+    -DCMAKE_PREFIX_PATH="$MONGO_C_DRIVER_INSTALL_PREFIX" ..
 
-$CMAKE --build . --target install
+$CMAKE --build . --target install -- -j16

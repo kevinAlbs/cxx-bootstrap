@@ -6,38 +6,43 @@ if [[ "$(basename $(pwd))" != "cxx-bootstrap" ]]; then
     exit 1
 fi
 
-LIBBSON_PATH=${LIBBSON_PATH:-$(pwd)/install/libbson-master}
-GITREF=${GITREF:-master}
-PREFIX=${PREFIX:-$(pwd)/install/libmongocrypt-$GITREF}
-SRCDIR=$PREFIX-src
-CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE:-Debug}
+LIBBSON_INSTALL_PREFIX=${LIBBSON_INSTALL_PREFIX:-$(pwd)/install/libbson-master}
+export LIBMONGOCRYPT_EXTRA_CMAKE_OPTIONS=${LIBMONGOCRYPT_EXTRA_CMAKE_OPTIONS}
+export LIBMONGOCRYPT_SUFFIX=${LIBMONGOCRYPT_SUFFIX}
+export LIBMONGOCRYPT_GITREF=${LIBMONGOCRYPT_GITREF:-master}
+export LIBMONGOCRYPT_INSTALL_PREFIX=${LIBMONGOCRYPT_INSTALL_PREFIX:-$(pwd)/install/libmongocrypt-$LIBMONGOCRYPT_GITREF$LIBMONGOCRYPT_SUFFIX}
+export LIBMONGOCRYPT_SRCDIR=$LIBMONGOCRYPT_INSTALL_PREFIX-src
+export LIBMONGOCRYPT_CMAKE_BUILD_TYPE=${LIBMONGOCRYPT_CMAKE_BUILD_TYPE:-Debug}
+export LIBMONGOCRYPT_REMOTE=${LIBMONGOCRYPT_REMOTE:-mongodb}
 
-if [[ "$CMAKE_BUILD_TYPE" == "Release" ]]; then
-    PREFIX="$PREFIX-release"
+if [[ "$LIBMONGOCRYPT_CMAKE_BUILD_TYPE" == "Release" ]]; then
+    LIBMONGOCRYPT_INSTALL_PREFIX="$LIBMONGOCRYPT_INSTALL_PREFIX-release"
 fi
 
 . ./etc/find_os.sh
 . ./etc/find_cmake.sh
 
 if [[ $OS == "WINDOWS" ]]; then
-    LIBBSON_PATH=$(cygpath -w $LIBBSON_PATH)
-    PREFIX=$(cygpath -w $PREFIX)
+    LIBBSON_INSTALL_PREFIX=$(cygpath -w $LIBBSON_INSTALL_PREFIX)
+    LIBMONGOCRYPT_INSTALL_PREFIX=$(cygpath -w $LIBMONGOCRYPT_INSTALL_PREFIX)
 fi
 
-mkdir -p $PREFIX
-rm -rf $SRCDIR
-mkdir -p $SRCDIR
+mkdir -p $LIBMONGOCRYPT_INSTALL_PREFIX
+rm -rf $LIBMONGOCRYPT_SRCDIR
+mkdir -p $LIBMONGOCRYPT_SRCDIR
 
-cd $SRCDIR
-git clone git@github.com:mongodb/libmongocrypt.git
+cd $LIBMONGOCRYPT_SRCDIR
+git clone git@github.com:$LIBMONGOCRYPT_REMOTE/libmongocrypt.git
 cd libmongocrypt
-git checkout $GITREF
+git checkout $LIBMONGOCRYPT_GITREF
 mkdir cmake-build
 cd cmake-build
 
-echo "About to install libmongocrypt ($GITREF) into $PREFIX"
+echo "About to install libmongocrypt ($LIBMONGOCRYPT_GITREF) into $LIBMONGOCRYPT_INSTALL_PREFIX"
 
-$CMAKE -DCMAKE_INSTALL_PREFIX=$PREFIX \
-    -DCMAKE_PREFIX_PATH=$LIBBSON_PATH ..
+$CMAKE $LIBMONGOCRYPT_EXTRA_CMAKE_OPTIONS \
+    -DCMAKE_INSTALL_PREFIX=$LIBMONGOCRYPT_INSTALL_PREFIX \
+    -DCMAKE_BUILD_TYPE=$LIBMONGOCRYPT_CMAKE_BUILD_TYPE \
+    -DCMAKE_PREFIX_PATH=$LIBBSON_INSTALL_PREFIX ..
 
-$CMAKE --build . --target install
+$CMAKE --build . --target install -- -j8

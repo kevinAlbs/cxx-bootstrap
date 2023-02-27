@@ -23,7 +23,7 @@ EOF
 
 cat <<EOF > configure.sh
 cmake \\
-    -DCMAKE_PREFIX_PATH=../../install/mongo-cxx-driver-master \\
+    -DCMAKE_PREFIX_PATH=../../install/mongo-cxx-driver-r3.7.0 \\
     -DCMAKE_BUILD_TYPE="Debug" \\
     -DCMAKE_C_COMPILER_LAUNCHER="ccache" \\
     -DCMAKE_C_FLAGS="-fsanitize=address" \\
@@ -74,8 +74,8 @@ int main () {
 EOF
 
 cat <<EOF > setenv.sh
-export DYLD_LIBRARY_PATH=/Users/kevin.albertson/install/mongo-c-driver-master/lib
-export PKG_CONFIG_PATH=/Users/kevin.albertson/install/mongo-c-driver-master/lib/pkgconfig
+export DYLD_LIBRARY_PATH=/Users/kevin.albertson/install/mongo-c-driver-1.23.2/lib
+export PKG_CONFIG_PATH=/Users/kevin.albertson/install/mongo-c-driver-1.23.2/lib/pkgconfig
 EOF
 
 popd
