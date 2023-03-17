@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+project(test_rpath_to_cxxdriver LANGUAGES C CXX)
+find_package(mongocxx REQUIRED)
+add_executable (app.out app.cpp)
+install(TARGETS app.out)
+target_link_libraries(app.out PRIVATE mongo::mongocxx_shared)
