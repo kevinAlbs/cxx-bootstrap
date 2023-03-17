@@ -1,3 +1,8 @@
+// Shows an example of printing retry attempts.
+// Run with these instructions:
+//   CXX_INSTALL_PREFIX=/path/to/install/mongo-cxx-driver/ ./configure.sh
+//   ./build.sh
+//   ./run.sh
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
 #include <bsoncxx/builder/basic/kvp.hpp>
