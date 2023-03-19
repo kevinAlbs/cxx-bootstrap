@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-CXX_INSTALL_PATH=/home/ubuntu/code/cxx-bootstrap/install/mongo-cxx-driver-r3.7.1
+CXX_INSTALL_PATH=/home/ubuntu/code/cxx-bootstrap/install/mongo-cxx-driver-r3.7.1cpp11
 
 function assert_eq () {
     a="$1"
@@ -48,7 +48,7 @@ function cleanup () {
     captured=$((
         # Tell pkg-config where to find C++ driver installation.
         export PKG_CONFIG_PATH=$CXX_INSTALL_PATH/lib/pkgconfig
-        g++ -std=c++17 app.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out
+        g++ -std=c++11 app.cpp $(pkg-config --cflags --libs libmongocxx) -o ./app.out
         ./app.out
         # Prints the following error:
         # ./app.out: error while loading shared libraries: libmongocxx.so._noabi: cannot open shared object file: No such file or directory
@@ -61,7 +61,7 @@ function cleanup () {
     cleanup
     # Tell pkg-config where to find C++ driver installation.
     export PKG_CONFIG_PATH=$CXX_INSTALL_PATH/lib/pkgconfig
-    g++ app.cpp -std=c++17 $(pkg-config --cflags --libs libmongocxx) -o ./app.out
+    g++ app.cpp -std=c++11 $(pkg-config --cflags --libs libmongocxx) -o ./app.out
     captured=$((
         LD_LIBRARY_PATH=$CXX_INSTALL_PATH/lib ./app.out
         # Prints "successfully connected with C++ driver"
@@ -76,7 +76,7 @@ function cleanup () {
         # Tell pkg-config where to find C++ driver installation.
         export PKG_CONFIG_PATH=$CXX_INSTALL_PATH/lib/pkgconfig
         # Pass the linker option -rpath to set an rpath in the final executable.
-        g++ app.cpp -std=c++17 -Wl,-rpath,$CXX_INSTALL_PATH/lib $(pkg-config --cflags --libs libmongocxx) -o ./app.out
+        g++ app.cpp -std=c++11 -Wl,-rpath,$CXX_INSTALL_PATH/lib $(pkg-config --cflags --libs libmongocxx) -o ./app.out
         ./app.out
         # Prints "successfully connected with C++ driver"
     )2>&1)
@@ -91,7 +91,7 @@ function cleanup () {
         cmake \
         -DCMAKE_PREFIX_PATH=$CXX_INSTALL_PATH \
         -DCMAKE_INSTALL_PREFIX=$HOME/app \
-        -DCMAKE_CXX_STANDARD=17 \
+        -DCMAKE_CXX_STANDARD=11 \
         -Bcmake-build -S.
         cmake --build cmake-build --target app.out
         # Running app.out from build tree includes rpath to C++ driver.
@@ -114,7 +114,7 @@ function cleanup () {
         -DCMAKE_PREFIX_PATH=$CXX_INSTALL_PATH \
         -DCMAKE_INSTALL_PREFIX=$HOME/app \
         -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=TRUE \
-        -DCMAKE_CXX_STANDARD=17 \
+        -DCMAKE_CXX_STANDARD=11 \
         -Bcmake-build -S.
 
         cmake --build cmake-build --target install
