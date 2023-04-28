@@ -1,6 +1,9 @@
 #pragma once
 
 #include <mongocxx/options/apm.hpp>
+#include <iostream>
+#include <mongocxx/logger.hpp>
+#include <bsoncxx/json.hpp>
 
 static inline mongocxx::options::apm get_apm_opts(bool started_only = true)
 {
@@ -25,3 +28,21 @@ static inline mongocxx::options::apm get_apm_opts(bool started_only = true)
 
     return opts;
 }
+
+class stream_logger final : public mongocxx::logger
+{
+public:
+    explicit stream_logger(std::ostream *stream) : _stream(stream) {}
+
+    void operator()(mongocxx::log_level level,
+                    bsoncxx::stdx::string_view domain,
+                    bsoncxx::stdx::string_view message) noexcept override
+    {
+        if (level >= mongocxx::log_level::k_trace)
+            return;
+        *_stream << '[' << mongocxx::to_string(level) << '@' << domain << "] " << message << '\n';
+    }
+
+private:
+    std::ostream *const _stream;
+};
