@@ -1,3 +1,10 @@
+# Q2: Does the C++ driver implement the standard API or index view API for indexes?
+
+A:
+
+The index view API is implemented: https://jira.mongodb.org/browse/CXX-1358
+The standard API is partially implemented: https://jira.mongodb.org/browse/CXX-1351
+
 # Q1: Why is a runtime error observed on Windows?
 
 A: 
