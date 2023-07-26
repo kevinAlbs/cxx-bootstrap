@@ -84,7 +84,7 @@ bool download(const std::string &fileName, const std::string &destiationFolder, 
         // Write the binary data to the file
         file.write(reinterpret_cast<const char *>(binaryData.bytes), binaryData.size);
 
-        std::cout << "Download sucessful for: " << fileName << " at " << destiationFolder << std::endl;
+        std::cout << "Download successful for: " << fileName << " at " << destiationFolder << std::endl;
         return true;
     }
     else
