@@ -139,7 +139,10 @@ int main()
         const std::string fileName1 = "image-15.jpg", fileName2 = "Hi Seed Shaker 120bpm On Accents.wav";
         for (auto fileName : {fileName1, fileName2})
         {
-            download(fileName, downloadFolder, filesCollection);
+            if (!download(fileName, downloadFolder, filesCollection))
+            {
+                std::cout << "Download failed for: " << fileName << std::endl;
+            }
         }
 
         // Download all files in the collection.
@@ -147,7 +150,10 @@ int main()
         for (auto &&doc : cursor)
         {
             auto fileName = std::string(doc[FILE_NAME].get_string().value);
-            download(fileName, downloadFolder, filesCollection);
+            if (!download(fileName, downloadFolder, filesCollection))
+            {
+                std::cout << "Download failed for: " << fileName << std::endl;
+            }
         }
     }
 
