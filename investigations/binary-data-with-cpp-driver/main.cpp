@@ -119,7 +119,7 @@ int main()
 
         // Upload all files in the upload folder.
         const std::string uploadFolder = "/Users/kevin.albertson/code/cxx-bootstrap/investigations/binary-data-with-cpp-driver/upload_from/";
-        for (const auto &filePath : std::filesystem::recursive_directory_iterator(uploadFolder))
+        for (const auto &filePath : std::filesystem::directory_iterator(uploadFolder))
         {
             if (std::filesystem::is_directory(filePath))
                 continue;
