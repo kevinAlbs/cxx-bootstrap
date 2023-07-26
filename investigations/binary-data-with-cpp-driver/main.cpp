@@ -1,5 +1,4 @@
 #include <bsoncxx/builder/basic/document.hpp>
-#include <bsoncxx/json.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
 #include <mongocxx/uri.hpp>
@@ -53,7 +52,6 @@ bool upload(const std::string &filePath, mongocxx::collection &collection)
 
     // Insert the document into the collection.
     collection.insert_one(doc.view());
-    file.close();
 
     std::cout << "Upload successful for: " << filePath << std::endl;
 
@@ -85,7 +83,6 @@ bool download(const std::string &fileName, const std::string &destiationFolder, 
 
         // Write the binary data to the file
         file.write(reinterpret_cast<const char *>(binaryData.bytes), binaryData.size);
-        file.close();
 
         std::cout << "Download sucessful for: " << fileName << " at " << destiationFolder << std::endl;
         return true;
@@ -120,7 +117,7 @@ int main()
         auto filesCollection = fileStorageDB.collection(collName);
 
         // Upload all files in the upload folder.
-        const std::string uploadFolder = "/Users/bishtr/repos/fileStorage/upload/";
+        const std::string uploadFolder = "/Users/kevin.albertson/code/cxx-bootstrap/investigations/binary-data-with-cpp-driver/upload_from/";
         for (const auto &filePath : std::filesystem::recursive_directory_iterator(uploadFolder))
         {
             if (std::filesystem::is_directory(filePath))
@@ -133,10 +130,10 @@ int main()
         }
 
         // Download files to the download folder.
-        const std::string downloadFolder = "/Users/bishtr/repos/fileStorage/download/";
+        const std::string downloadFolder = "/Users/kevin.albertson/code/cxx-bootstrap/investigations/binary-data-with-cpp-driver/download_to/";
 
         // Search with specific filenames and download it.
-        const std::string fileName1 = "image-15.jpg", fileName2 = "Hi Seed Shaker 120bpm On Accents.wav";
+        const std::string fileName1 = "a.txt", fileName2 = "b.txt";
         for (auto fileName : {fileName1, fileName2})
         {
             if (!download(fileName, downloadFolder, filesCollection))
