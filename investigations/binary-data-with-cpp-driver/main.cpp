@@ -102,14 +102,8 @@ int main()
 {
     try
     {
-        auto mongoURIStr = "<Insert MongoDB Connection String>";
+        auto mongoURIStr = "mongodb://localhost:27017";
         static const mongocxx::uri mongoURI = mongocxx::uri{mongoURIStr};
-
-        if (mongoURI.to_string().empty())
-        {
-            std::cout << "URI is empty";
-            return 0;
-        }
 
         // Create an instance.
         mongocxx::instance inst{};
