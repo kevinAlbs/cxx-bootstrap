@@ -115,6 +115,7 @@ int main()
 
         auto fileStorageDB = conn.database(dbName);
         auto filesCollection = fileStorageDB.collection(collName);
+        filesCollection.drop(); // Drop previous data.
 
         // Upload all files in the upload folder.
         const std::string uploadFolder = "/Users/kevin.albertson/code/cxx-bootstrap/investigations/binary-data-with-cpp-driver/upload_from/";
