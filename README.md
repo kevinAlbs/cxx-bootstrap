@@ -1,3 +1,61 @@
+# Q4: When to review a view type? When to review a value type? When to return a view_or_value type?
+
+Return a value type when the function is creating the value. Example: https://github.com/mongodb/mongo-cxx-driver/pull/986#discussion_r1268315781. Cannot return a view to a newly created value.
+
+TODO
+
+
+# Q3: What view/value type should be used for passing and storing options?
+
+A: `view_or_value`. This agrees with more recent API changes (e.g. `rewrap_many_datakey.hpp`) and may provide callers the most flexibility.
+
+```c++
+class search_index_model_v2 {
+   public:
+    search_index_model_v2(bsoncxx::string::view_or_value name) : _name(name) {}
+
+    void print_name() {
+        if (_name) {
+            std::cout << "name is: " << _name->view() << std::endl;
+        } else {
+            std::cout << "name is: not set" << std::endl;
+        }
+    }
+
+   private:
+    bsoncxx::stdx::optional<bsoncxx::string::view_or_value> _name;
+};
+
+TEST_CASE("search_index_management", "[collection]") {
+    instance::current();
+
+    // Caller can pass view.
+    // No copy occurs. Caller is responsible for ensuring value `s` outlives the
+    // `search_index_model_v2`.
+    {
+        std::string s = "abc";
+        bsoncxx::stdx::string_view sv(s);
+        search_index_model_v2 sim(sv.substr(0, 1));
+        sim.print_name();
+    }
+
+    // Caller can move value.
+    {
+        std::string s = "abc";
+        search_index_model_v2 sim(std::move(s));
+        sim.print_name();
+    }
+
+    // Caller can copy value.
+    {
+        std::string s = "abc";
+        search_index_model_v2 sim(s);
+        sim.print_name();
+    }
+}
+```
+
+
 # Q2: Does the C++ driver implement the standard API or index view API for indexes?
 
 A:
