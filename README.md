@@ -69,3 +69,7 @@ A:
 See https://jira.mongodb.org/browse/CXX-1846?focusedCommentId=2506398&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-2506398:
 
 > A developer only hint: on Windows, very frequently these sorts of weird crashes are caused by inadvertently mixing different runtime libraries. All of the components (C driver, Boost, C++ Driver, Application) must agree on whether the Debug or Release CRT is in play, along with whether you are building against the Static or Dynamic version is being used. Weird string crashes are the canonical symptom of such misconfigurations.
+
+See also: https://jira.mongodb.org/browse/CXX-2707?focusedCommentId=5557340&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-5557340
+
+> We suspect this error may instead be caused by the use of incompatible build configurations for the bsoncxx library vs. the test application. The build configuration for a Windows application must be consistent with the build configuration of all the libraries being linked against. To compile and link the test application using the Release configuration, it must link against a bsoncxx library which was also built using the Release configuration.
