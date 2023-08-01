@@ -1,14 +1,13 @@
-#include <bsoncxx/builder/basic/document.hpp>
 #include <mongocxx/client.hpp>
-#include <mongocxx/instance.hpp>
+#include <bsoncxx/builder/basic/document.hpp>
 #include <mongocxx/uri.hpp>
+#include <mongocxx/instance.hpp>
 
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <filesystem>
 
-// Define keys for the key-value pair.
 #define FILE_NAME "name"
 #define FILE_PATH "path"
 #define FILE_DATA "data"
@@ -45,6 +44,7 @@ bool upload(const std::string &filePath, mongocxx::collection &collection)
     bsoncxx::types::b_binary data{bsoncxx::binary_sub_type::k_binary, static_cast<std::uint32_t>(fileSize), reinterpret_cast<const std::uint8_t *>(buffer.data())};
 
     // Create a document with the file name and file content.
+
     auto doc = make_document(
         kvp(FILE_NAME, std::filesystem::path(filePath).filename()),
         kvp(FILE_PATH, filePath),
@@ -54,12 +54,11 @@ bool upload(const std::string &filePath, mongocxx::collection &collection)
     collection.insert_one(doc.view());
 
     std::cout << "Upload successful for: " << filePath << std::endl;
-
     return true;
 }
 
 // Download a file from a collection to a given folder.
-bool download(const std::string &fileName, const std::string &destiationFolder, mongocxx::collection &collection)
+bool download(const std::string &fileName, const std::string &destinationFolder, mongocxx::collection &collection)
 {
     // Create a query to find the file by filename
     auto filter = make_document(kvp(FILE_NAME, fileName));
@@ -74,17 +73,17 @@ bool download(const std::string &fileName, const std::string &destiationFolder, 
         auto binaryData = binaryDocView[FILE_DATA].get_binary();
 
         // Create a file to save the binary data
-        std::ofstream file(destiationFolder + fileName, std::ios::binary);
+        std::ofstream file(destinationFolder + fileName, std::ios::binary);
         if (!file)
         {
-            std::cout << "Failed to create the file: " << fileName << " at " << destiationFolder << std::endl;
+            std::cout << "Failed to create the file: " << fileName << " at " << destinationFolder << std::endl;
             return false;
         }
 
         // Write the binary data to the file
         file.write(reinterpret_cast<const char *>(binaryData.bytes), binaryData.size);
 
-        std::cout << "Download successful for: " << fileName << " at " << destiationFolder << std::endl;
+        std::cout << "Download successful for: " << fileName << " at " << destinationFolder << std::endl;
         return true;
     }
     else
@@ -99,7 +98,7 @@ int main()
 {
     try
     {
-        auto mongoURIStr = "mongodb://localhost:27017";
+        auto mongoURIStr = "<Insert MongoDB Connection String>";
         static const mongocxx::uri mongoURI = mongocxx::uri{mongoURIStr};
 
         // Create an instance.
@@ -115,10 +114,11 @@ int main()
 
         auto fileStorageDB = conn.database(dbName);
         auto filesCollection = fileStorageDB.collection(collName);
-        filesCollection.drop(); // Drop previous data.
+        // Drop previous data.
+        filesCollection.drop();
 
         // Upload all files in the upload folder.
-        const std::string uploadFolder = "/Users/kevin.albertson/code/cxx-bootstrap/investigations/binary-data-with-cpp-driver/upload_from/";
+        const std::string uploadFolder = "/Users/bishtr/repos/fileStorage/upload/";
         for (const auto &filePath : std::filesystem::directory_iterator(uploadFolder))
         {
             if (std::filesystem::is_directory(filePath))
@@ -131,10 +131,10 @@ int main()
         }
 
         // Download files to the download folder.
-        const std::string downloadFolder = "/Users/kevin.albertson/code/cxx-bootstrap/investigations/binary-data-with-cpp-driver/download_to/";
+        const std::string downloadFolder = "/Users/bishtr/repos/fileStorage/download/";
 
         // Search with specific filenames and download it.
-        const std::string fileName1 = "a.txt", fileName2 = "b.txt";
+        const std::string fileName1 = "image-15.jpg", fileName2 = "Hi Seed Shaker 120bpm On Accents.wav";
         for (auto fileName : {fileName1, fileName2})
         {
             if (!download(fileName, downloadFolder, filesCollection))
@@ -154,7 +154,6 @@ int main()
             }
         }
     }
-
     catch (const std::exception &e)
     {
         std::cout << "Exception encountered: " << e.what() << std::endl;
