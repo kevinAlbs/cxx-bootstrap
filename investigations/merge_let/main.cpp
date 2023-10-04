@@ -9,6 +9,8 @@
 #include <cstdlib>
 #include <iostream>
 
+#include "../../util/util.hpp"
+
 using namespace bsoncxx::builder::basic;
 int main()
 {
@@ -20,7 +22,9 @@ int main()
         uristr = std::getenv("MONGODB_URI");
     }
 
-    auto client = mongocxx::client(mongocxx::uri(uristr));
+    auto client_opts = mongocxx::options::client();
+    client_opts.apm_opts(get_apm_opts(true));
+    auto client = mongocxx::client(mongocxx::uri(uristr), client_opts);
     auto db = client.database("db");
     auto coll_from = db["from"];
     auto coll_to = db["to"];
