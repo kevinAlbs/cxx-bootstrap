@@ -31,22 +31,19 @@ using bsoncxx::builder::basic::kvp;
 
 int main()
 {
-    // The mongocxx::instance constructor and destructor initialize and shut down the driver,
-    // respectively. Therefore, a mongocxx::instance must be created before using the driver and
-    // must remain alive for as long as the driver is in use.
     mongocxx::instance inst{};
-    mongocxx::uri uri{
-        "mongodb://"
-        "host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/"};
+    // Use a shorter serverSelectionTimeoutMS for faster exit when all servers are terminated.
+    mongocxx::uri uri{"mongodb://"
+                      "host.docker.internal:27017,host.docker.internal:27018,"
+                      "host.docker.internal:27019/?serverSelectionTimeoutMS=3000"};
 
     mongocxx::options::apm apm_opts;
-
     // Print failed commands. This prints failed commands, even if a retry succeeds.
     apm_opts.on_command_failed(
         [](const mongocxx::events::command_failed_event &event)
         {
             std::cout << "command failed " << event.command_name() << " "
-                      << bsoncxx::to_json(event.failure()) << "\n";
+                      << bsoncxx::to_json(event.failure()) << std::endl;
         });
 
     // Print server change events. This prints when a server is marked Unknown.
@@ -55,14 +52,21 @@ int main()
         {
             std::cout << "server changed " << event.host() << ":" << event.port()
                       << " changed from " << event.previous_description().type() << " to "
-                      << event.new_description().type() << "\n"
-                      << "most recent ismaster "
-                      << bsoncxx::to_json(event.new_description().hello()) << "\n";
+                      << event.new_description().type() << std::endl
+                      << "most recent description "
+                      << bsoncxx::to_json(event.new_description().hello()) << std::endl;
+        });
+
+    // Print server heartbeat failures.
+    apm_opts.on_heartbeat_failed(
+        [](const mongocxx::events::heartbeat_failed_event &event)
+        {
+            std::cout << "heartbeat failed to " << event.host() << ":" << event.port()
+                      << "with message " << event.message() << std::endl;
         });
 
     mongocxx::options::client client_opts;
     client_opts.apm_opts(apm_opts);
-
     mongocxx::pool pool{uri, mongocxx::options::pool{client_opts}};
     std::vector<std::string> collection_names = {"countries", "bar", "baz"};
     std::vector<std::thread> threads{};
@@ -74,19 +78,26 @@ int main()
             // Each client and collection can only be used in a single thread.
             auto client = pool.acquire();
             auto coll = (*client)["countries"][collection_names[j]];
-            // coll.delete_many({});
 
             bsoncxx::types::b_int64 index = {j};
             coll.insert_one(bsoncxx::builder::basic::make_document(kvp("x", index)));
 
-            std::cout << "Thread " << i << "about to run `find_one` in a loop\n";
+            std::cout << "Thread " << j << " about to run `find_one` in a loop" << std::endl;
+            auto prevTime = std::chrono::system_clock::now();
             while (true)
             {
                 auto doc = (*client)["countries"][collection_names[j]].find_one({});
                 if (!doc)
                 {
-                    std::cout << "Unexpected: no document found\n";
-                    abort();
+                    std::cout << "Unexpected: no document found" << std::endl;
+                }
+
+                auto currentTime = std::chrono::system_clock::now();
+                auto dur = std::chrono::duration_cast<std::chrono::seconds>(currentTime - prevTime);
+                if (dur.count() > 1)
+                {
+                    std::cout << "Thread " << j << " still running " << std::endl;
+                    prevTime = currentTime;
                 }
             }
 
