@@ -45,7 +45,7 @@ int main()
             std::stringstream ss;
             ss << "command failed " << event.command_name() << " "
                << bsoncxx::to_json(event.failure()) << std::endl;
-            std::cout << ss.str();
+            std::cout << ss.str() << std::flush;
         });
 
     // Print server change events. This prints when a server is marked Unknown.
@@ -58,7 +58,7 @@ int main()
                << event.new_description().type() << std::endl
                << "most recent description "
                << bsoncxx::to_json(event.new_description().hello()) << std::endl;
-            std::cout << ss.str();
+            std::cout << ss.str() << std::flush;
         });
 
     // Print server heartbeat failures.
@@ -66,9 +66,9 @@ int main()
         [](const mongocxx::events::heartbeat_failed_event &event)
         {
             std::stringstream ss;
-            ss << "heartbeat failed to " << event.host() << ":" << event.port()
+            ss << "heartbeat failed to " << event.host() << ":" << event.port() << " "
                << "with message " << event.message() << std::endl;
-            std::cout << ss.str();
+            std::cout << ss.str() << std::flush;
         });
 
     mongocxx::options::client client_opts;
@@ -90,7 +90,7 @@ int main()
 
             std::stringstream ss;
             ss << "Thread " << j << " about to run `find_one` in a loop" << std::endl;
-            std::cout << ss.str();
+            std::cout << ss.str() << std::flush;
             auto prevTime = std::chrono::system_clock::now();
             while (true)
             {
@@ -101,7 +101,7 @@ int main()
                     {
                         std::stringstream ss;
                         ss << "Unexpected: no document found" << std::endl;
-                        std::cout << ss.str();
+                        std::cout << ss.str() << std::flush;
                     }
 
                     auto currentTime = std::chrono::system_clock::now();
@@ -110,7 +110,7 @@ int main()
                     {
                         std::stringstream ss;
                         ss << "Thread " << j << " still running " << std::endl;
-                        std::cout << ss.str();
+                        std::cout << ss.str() << std::flush;
                         prevTime = currentTime;
                     }
                 }
@@ -118,7 +118,7 @@ int main()
                 {
                     std::stringstream ss;
                     ss << "Thread " << j << "got exception: " << exc.what() << std::endl;
-                    std::cout << ss.str();
+                    std::cout << ss.str() << std::flush;
                     break;
                 }
             }
