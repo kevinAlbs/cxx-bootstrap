@@ -39,8 +39,31 @@ int main()
         "mongodb://"
         "host.docker.internal:27017,host.docker.internal:27018,host.docker.internal:27019/"};
 
-    mongocxx::pool pool{uri};
+    mongocxx::options::apm apm_opts;
 
+    // Print failed commands. This prints failed commands, even if a retry succeeds.
+    apm_opts.on_command_failed(
+        [](const mongocxx::events::command_failed_event &event)
+        {
+            std::cout << "command failed " << event.command_name() << " "
+                      << bsoncxx::to_json(event.failure()) << "\n";
+        });
+
+    // Print server change events. This prints when a server is marked Unknown.
+    apm_opts.on_server_changed(
+        [](const mongocxx::events::server_changed_event &event)
+        {
+            std::cout << "server changed " << event.host() << ":" << event.port()
+                      << " changed from " << event.previous_description().type() << " to "
+                      << event.new_description().type() << "\n"
+                      << "most recent ismaster "
+                      << bsoncxx::to_json(event.new_description().hello()) << "\n";
+        });
+
+    mongocxx::options::client client_opts;
+    client_opts.apm_opts(apm_opts);
+
+    mongocxx::pool pool{uri, mongocxx::options::pool{client_opts}};
     std::vector<std::string> collection_names = {"countries", "bar", "baz"};
     std::vector<std::thread> threads{};
 
