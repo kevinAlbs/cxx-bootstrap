@@ -56,16 +56,14 @@ int main()
             bsoncxx::types::b_int64 index = {j};
             coll.insert_one(bsoncxx::builder::basic::make_document(kvp("x", index)));
 
+            std::cout << "Thread " << i << "about to run `find_one` in a loop\n";
             while (true)
             {
-                if (auto doc = (*client)["countries"][collection_names[j]].find_one({}))
+                auto doc = (*client)["countries"][collection_names[j]].find_one({});
+                if (!doc)
                 {
-                    // In order to ensure that the newline is printed immediately after the
-                    // document, they need to be streamed to std::cout as a single string.
-                    std::stringstream ss;
-                    ss << bsoncxx::to_json(*doc) << std::endl;
-
-                    std::cout << ss.str();
+                    std::cout << "Unexpected: no document found\n";
+                    abort();
                 }
             }
 
