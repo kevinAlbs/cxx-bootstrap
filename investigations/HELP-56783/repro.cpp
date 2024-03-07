@@ -42,27 +42,33 @@ int main()
     apm_opts.on_command_failed(
         [](const mongocxx::events::command_failed_event &event)
         {
-            std::cout << "command failed " << event.command_name() << " "
-                      << bsoncxx::to_json(event.failure()) << std::endl;
+            std::stringstream ss;
+            ss << "command failed " << event.command_name() << " "
+               << bsoncxx::to_json(event.failure()) << std::endl;
+            std::cout << ss.str();
         });
 
     // Print server change events. This prints when a server is marked Unknown.
     apm_opts.on_server_changed(
         [](const mongocxx::events::server_changed_event &event)
         {
-            std::cout << "server changed " << event.host() << ":" << event.port()
-                      << " changed from " << event.previous_description().type() << " to "
-                      << event.new_description().type() << std::endl
-                      << "most recent description "
-                      << bsoncxx::to_json(event.new_description().hello()) << std::endl;
+            std::stringstream ss;
+            ss << "server changed " << event.host() << ":" << event.port()
+               << " changed from " << event.previous_description().type() << " to "
+               << event.new_description().type() << std::endl
+               << "most recent description "
+               << bsoncxx::to_json(event.new_description().hello()) << std::endl;
+            std::cout << ss.str();
         });
 
     // Print server heartbeat failures.
     apm_opts.on_heartbeat_failed(
         [](const mongocxx::events::heartbeat_failed_event &event)
         {
-            std::cout << "heartbeat failed to " << event.host() << ":" << event.port()
-                      << "with message " << event.message() << std::endl;
+            std::stringstream ss;
+            ss << "heartbeat failed to " << event.host() << ":" << event.port()
+               << "with message " << event.message() << std::endl;
+            std::cout << ss.str();
         });
 
     mongocxx::options::client client_opts;
@@ -82,22 +88,38 @@ int main()
             bsoncxx::types::b_int64 index = {j};
             coll.insert_one(bsoncxx::builder::basic::make_document(kvp("x", index)));
 
-            std::cout << "Thread " << j << " about to run `find_one` in a loop" << std::endl;
+            std::stringstream ss;
+            ss << "Thread " << j << " about to run `find_one` in a loop" << std::endl;
+            std::cout << ss.str();
             auto prevTime = std::chrono::system_clock::now();
             while (true)
             {
-                auto doc = (*client)["countries"][collection_names[j]].find_one({});
-                if (!doc)
+                try
                 {
-                    std::cout << "Unexpected: no document found" << std::endl;
-                }
+                    auto doc = (*client)["countries"][collection_names[j]].find_one({});
+                    if (!doc)
+                    {
+                        std::stringstream ss;
+                        ss << "Unexpected: no document found" << std::endl;
+                        std::cout << ss.str();
+                    }
 
-                auto currentTime = std::chrono::system_clock::now();
-                auto dur = std::chrono::duration_cast<std::chrono::seconds>(currentTime - prevTime);
-                if (dur.count() > 1)
+                    auto currentTime = std::chrono::system_clock::now();
+                    auto dur = std::chrono::duration_cast<std::chrono::seconds>(currentTime - prevTime);
+                    if (dur.count() > 1)
+                    {
+                        std::stringstream ss;
+                        ss << "Thread " << j << " still running " << std::endl;
+                        std::cout << ss.str();
+                        prevTime = currentTime;
+                    }
+                }
+                catch (std::exception &exc)
                 {
-                    std::cout << "Thread " << j << " still running " << std::endl;
-                    prevTime = currentTime;
+                    std::stringstream ss;
+                    ss << "Thread " << j << "got exception: " << exc.what() << std::endl;
+                    std::cout << ss.str();
+                    break;
                 }
             }
 
