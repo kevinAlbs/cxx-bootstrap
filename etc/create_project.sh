@@ -1,7 +1,11 @@
 PROJECT_NAME=${PROJECT_NAME:-}
 
 if [ -z "$PROJECT_NAME" ]; then
-    echo "required environment variable PROJECT_NAME not supplied"
+    PROJECT_NAME=${NAME:-}
+fi
+
+if [ -z "$PROJECT_NAME" ]; then
+    echo "required environment variable PROJECT_NAME or NAME not supplied"
     exit 1
 fi
 
