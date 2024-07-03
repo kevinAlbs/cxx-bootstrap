@@ -3,7 +3,6 @@
 #include <bsoncxx/builder/basic/kvp.hpp>
 #include <bsoncxx/builder/basic/document.hpp>
 #include <bsoncxx/json.hpp>
-#include "../../util/util.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -12,7 +11,7 @@ using namespace bsoncxx::builder::basic;
 int main()
 {
 
-    auto instance = mongocxx::instance(bsoncxx::stdx::make_unique<stream_logger>(&std::cout));
+    auto instance = mongocxx::instance();
 
     std::string uristr = "mongodb://localhost:27017";
     if (std::getenv("MONGODB_URI"))
