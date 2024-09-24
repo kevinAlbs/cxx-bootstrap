@@ -1,3 +1,55 @@
+# Q5: How to build and run a spec test?
+
+Configure with:
+```
+cmake -DCMAKE_CXX_STANDARD=17 -Bcmake-build -S.
+```
+
+The spec tests have separate test executables. To build the unified tests:
+```
+cmake --build cmake-build --target test_unified_format_specs
+```
+
+Built the `help` target to list all executables.
+
+To run, the test runner (weirdly) expects environment variables to be set to the path of data files. I have this in my running scripts:
+
+```
+# Specify paths to test data for the test runner:
+data_dir="$(pwd)/data"
+export CHANGE_STREAMS_UNIFIED_TESTS_PATH="${data_dir}/change-streams/unified"
+export CLIENT_SIDE_ENCRYPTION_LEGACY_TESTS_PATH="${data_dir}/client_side_encryption/legacy"
+export CLIENT_SIDE_ENCRYPTION_TESTS_PATH="${data_dir}/client_side_encryption"
+export CLIENT_SIDE_ENCRYPTION_UNIFIED_TESTS_PATH="${data_dir}/client_side_encryption/unified"
+export COLLECTION_MANAGEMENT_TESTS_PATH="${data_dir}/collection-management"
+export COMMAND_MONITORING_TESTS_PATH="${data_dir}/command-monitoring"
+export CRUD_LEGACY_TESTS_PATH="${data_dir}/crud/legacy"
+export CRUD_UNIFIED_TESTS_PATH="${data_dir}/crud/unified"
+export GRIDFS_TESTS_PATH="${data_dir}/gridfs"
+export INITIAL_DNS_SEEDLIST_DISCOVERY_TESTS_PATH="${data_dir}/initial_dns_seedlist_discovery"
+export READ_WRITE_CONCERN_OPERATION_TESTS_PATH="${data_dir}/read-write-concern/operation"
+export RETRYABLE_READS_LEGACY_TESTS_PATH="${data_dir}/retryable-reads/legacy"
+export RETRYABLE_READS_UNIFIED_TESTS_PATH="${data_dir}/retryable-reads/unified"
+export RETRYABLE_WRITES_UNIFIED_TESTS_PATH="${data_dir}/retryable-writes/unified"
+export SESSION_UNIFIED_TESTS_PATH="${data_dir}/sessions/unified"
+export TRANSACTIONS_LEGACY_TESTS_PATH="${data_dir}/transactions/legacy"
+export TRANSACTIONS_UNIFIED_TESTS_PATH="${data_dir}/transactions/unified"
+export UNIFIED_FORMAT_TESTS_PATH="${data_dir}/unified-format"
+export URI_OPTIONS_TESTS_PATH="${data_dir}/uri-options"
+export VERSIONED_API_TESTS_PATH="${data_dir}/versioned-api"
+export WITH_TRANSACTION_TESTS_PATH="${data_dir}/with_transaction"
+export INDEX_MANAGEMENT_TESTS_PATH="${data_dir}/index-management"
+
+# Run all unified tests for the index management spec:
+./cmake-build/src/mongocxx/test/test_unified_format_specs "index management spec automated tests" 
+
+# Run a single test file:
+./cmake-build/src/mongocxx/test/test_unified_format_specs "index management spec automated tests" --section createSearchIndex.json
+
+# Run a single test within a test file:
+./cmake-build/src/mongocxx/test/test_unified_format_specs "index management spec automated tests" --section createSearchIndex.json --section "no name provided for an index definition"
+```
+
 # Q4: When to review a view type? When to review a value type? When to return a view_or_value type?
 
 Return a value type when the function is creating the value. Example: https://github.com/mongodb/mongo-cxx-driver/pull/986#discussion_r1268315781. Cannot return a view to a newly created value.
