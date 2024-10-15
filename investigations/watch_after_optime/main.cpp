@@ -19,6 +19,8 @@ int main() {
   auto client = mongocxx::client(mongocxx::uri(uristr));
   auto db = client.database("db");
   auto coll = db.collection("coll");
+  auto wc_majority = mongocxx::write_concern();
+  wc_majority.acknowledge_level(mongocxx::write_concern::level::k_majority);
 
   // Start session to capture operation timestamp.
   auto sess = client.start_session();
@@ -29,18 +31,10 @@ int main() {
   auto ts = sess.operation_time();
 
   // Insert with majority write concern. Change streams use majority read concern.
-  {
-    auto wc_majority = mongocxx::write_concern();
-    wc_majority.acknowledge_level(mongocxx::write_concern::level::k_majority);
-    auto i_opts = mongocxx::options::insert();
-    i_opts.write_concern(wc_majority);
-    coll.insert_one(sess, make_document(kvp("foo", "bar")), i_opts);
-  }
+  coll.insert_one(sess, make_document(kvp("foo", "bar")), mongocxx::options::insert().write_concern(wc_majority));
 
-  auto cs_opts = mongocxx::options::change_stream();
-  cs_opts.start_at_operation_time(ts);
-
-  auto cs = coll.watch(sess, cs_opts);
+  // Watch at the returned operation time.
+  auto cs = coll.watch(sess, mongocxx::options::change_stream().start_at_operation_time(ts));
   for (auto change : cs) {
     std::cout << "got change " << bsoncxx::to_json(change) << std::endl;
   }
