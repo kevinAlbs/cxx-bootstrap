@@ -1,3 +1,7 @@
+# Q2: When should a public method use `view`, `value`, `view_or_value`?
+
+A: (Open)
+
 # Q1: Are private methods included in the ABI?
 
 A: I think "yes". Example:
