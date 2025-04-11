@@ -19,8 +19,6 @@ class log_printer : public mongocxx::logger {
 using namespace bsoncxx::builder::basic;
 int main() {
   auto logger = std::make_unique<log_printer>();
-
-  // Emit the informational mongocxx log message: "libmongoc logging callback enabled".
   mongocxx::instance instance{std::move(logger)};
 
   std::string uristr = "mongodb://localhost:27017";
