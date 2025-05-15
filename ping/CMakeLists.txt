@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 project(ping LANGUAGES C CXX)
 find_package(mongocxx REQUIRED)
 add_executable (main.out main.cpp)
