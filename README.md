@@ -1,3 +1,7 @@
+# Q6: When to use `noexcept`?
+
+A: See https://github.com/mongodb/mongo-cxx-driver/pull/1402#discussion_r2096510603
+
 # Q5: How to build and run a spec test?
 
 Configure with:
