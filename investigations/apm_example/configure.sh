@@ -1,5 +1,5 @@
 cmake \
-    -DCMAKE_PREFIX_PATH=../../install/mongo-cxx-driver-master \
+    -DCMAKE_PREFIX_PATH=../../install/mongo-cxx-driver-r4.1.0 \
     -DCMAKE_BUILD_TYPE="Debug" \
     -DCMAKE_C_COMPILER_LAUNCHER="ccache" \
     -DCMAKE_C_FLAGS="-fsanitize=address" \
