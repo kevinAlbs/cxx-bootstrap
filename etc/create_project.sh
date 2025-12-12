@@ -18,7 +18,7 @@ mkdir -p investigations/$PROJECT_NAME
 pushd investigations/$PROJECT_NAME
 
 cat <<EOF > CMakeLists.txt
-cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.15 FATAL_ERROR)
 project($PROJECT_NAME LANGUAGES C CXX)
 find_package(mongocxx REQUIRED)
 add_executable (main.out main.cpp)
@@ -27,9 +27,10 @@ EOF
 
 cat <<EOF > configure.sh
 cmake \\
-    -DCMAKE_PREFIX_PATH=../../install/mongo-cxx-driver-r4.0.0 \\
+    -DCMAKE_PREFIX_PATH=../../install/mongo-cxx-driver-r4.1.4 \\
     -DCMAKE_BUILD_TYPE="Debug" \\
     -DCMAKE_C_FLAGS="-fsanitize=address" \\
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \\
     -DCMAKE_CXX_STANDARD=17 \\
     -S./ \\
     -B./cmake-build
@@ -44,7 +45,8 @@ EOF
 chmod u+x build.sh
 
 cat <<EOF > run.sh
-export DYLD_LIBRARY_PATH=$HOME/code/c-bootstrap/install/mongo-c-driver-1.30.0/lib/
+export DYLD_LIBRARY_PATH=$HOME/code/c-bootstrap/install/mongo-c-driver-2.0.0/lib/
+export DYLD_LIBRARY_PATH=$HOME/code/c-bootstrap/install/libmongocrypt-1.17.0/lib/
 ./cmake-build/main.out
 EOF
 
