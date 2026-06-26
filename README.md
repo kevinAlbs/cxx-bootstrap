@@ -2,6 +2,12 @@
 
 https://github.com/mongodb/mongo-cxx-driver/pull/1318 describes complexities around macro guards.
 
+# TIL
+
+Quoting https://github.com/mongodb/mongo-cxx-driver/pull/1647#discussion_r3306934646:
+
+> For consistency with fixed redeclarations. New API should encourage and use v1 namespace entities even in existing v_noabi API
+
 # Q&A
 
 # Q12: Why are some APIs marked explicit(false)?
